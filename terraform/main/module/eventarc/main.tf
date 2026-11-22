@@ -1,6 +1,8 @@
 resource "google_project_service" "eventarc" {
   project = var.project_id
   service = "eventarc.googleapis.com"
+
+  disable_on_destroy = false
 }
 
 output "enabled" {

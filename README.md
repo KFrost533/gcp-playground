@@ -1,7 +1,36 @@
-＃ GCP 検証案
+# GCP 検証案
 
-File → upload to Cloud Storage → Eventarc → Cloud Run → Gmail
 
-Cloud Function → Cloud Queue → Gmail
+# 検証案①: Cloud Storage → Cloud Run → Gmail
 
-Youtube data → Cloud Function → Cloud Storage → BigQuery → グラフダウンロード 
+- 1: ファイルをCloud Storage にアップロードする。
+- 2: Eventarc でイベントを受け取り、Cloud Runに渡す
+- 3: Cloud Run から Gmail で通知(ファイル名 + 容量が本文に記載)
+
+
+# 実装結果
+
+
+- 1: Cloud Storage へのファイルのアップロード結果
+<br />
+
+<img src="./img/plan1/GCP-event-notification-CloudStorage-Upload.png"></img>
+
+- 2: Cloud Run実行ログ
+<br />
+
+<img src="./img/plan1/GCP-event-notification-CloudRun-log.png"></img>
+
+- 3: Gmail通知内容
+<br />
+
+<img src="./img/plan1/GCP-event-notification-SentMail.png"></img>
+
+# 検証案②: Cloud Function → Cloud Queue → Gmail
+
+検証中。
+
+
+# 検証案③: Youtube data → Cloud Function → Cloud Storage → BigQuery → グラフダウンロード 
+
+検証中。

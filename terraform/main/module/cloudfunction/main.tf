@@ -8,6 +8,8 @@ resource "google_project_service" "services" {
 
   project = var.project_id
   service = each.value
+
+  disable_on_destroy = false
 }
 
 resource "google_service_account" "function" {
