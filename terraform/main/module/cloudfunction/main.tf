@@ -2,7 +2,6 @@ resource "google_project_service" "services" {
   for_each = toset([
     "cloudbuild.googleapis.com",
     "cloudfunctions.googleapis.com",
-    "cloudscheduler.googleapis.com",
     "run.googleapis.com",
     "secretmanager.googleapis.com",
     "youtube.googleapis.com"
@@ -13,7 +12,6 @@ resource "google_project_service" "services" {
 
   disable_on_destroy = false
 }
-
 resource "google_service_account" "function" {
   project      = var.project_id
   account_id   = var.service_account_id
@@ -34,12 +32,6 @@ data "google_secret_manager_secret_version" "smtp_config" {
 data "google_secret_manager_secret_version" "youtube_api_key" {
   project = var.secret_project_id
   secret  = var.youtube_api_key_secret_name
-}
-
-resource "google_project_iam_member" "youtube_secret_accessor" {
-  project = var.secret_project_id
-  role    = "roles/secretmanager.secretAccessor"
-  member  = "serviceAccount:${google_service_account.function.email}"
 }
 
 resource "google_storage_bucket_iam_member" "youtube_output_writer" {
@@ -153,7 +145,7 @@ resource "google_cloudfunctions2_function" "youtube_data_summary" {
 
   depends_on = [
     google_project_service.services,
-    google_project_iam_member.youtube_secret_accessor,
+    google_project_iam_member.secret_accessor,
     google_storage_bucket_iam_member.youtube_output_writer,
     google_project_iam_member.scheduler_invoker,
     data.google_secret_manager_secret_version.youtube_api_key

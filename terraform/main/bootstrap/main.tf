@@ -61,6 +61,7 @@ module "cloudstorage" {
   source                                   = "../module/cloudstorage"
   project_id                               = nonsensitive(local.gcp_account_id)
   project_name                             = nonsensitive(local.gcp_account_name)
+  location                                 = var.gcp_region
   storage_notification_function_source_dir = "${path.module}/../module/cloudfunction/src/storage_notification"
   youtube_data_function_source_dir         = "${path.module}/../module/cloudfunction/src/ytdata_summary"
 }
@@ -95,6 +96,18 @@ module "cloudfunction" {
   eventarc_service_account_email = module.iam.service_account_email
 
   depends_on = [module.pubsub, module.iam, module.eventarc]
+}
+
+module "cloudscheduler" {
+  source = "../module/cloudscheduler"
+
+  project_id            = nonsensitive(local.gcp_account_id)
+  location              = var.gcp_region
+  job_name              = "youtube-data-summary-daily"
+  function_uri          = module.cloudfunction.youtube_function_uri
+  service_account_email = module.cloudfunction.youtube_service_account_email
+  schedule              = var.youtube_schedule
+  timezone              = var.youtube_schedule_timezone
 }
 
 module "eventarc" {

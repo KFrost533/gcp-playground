@@ -1,21 +1,25 @@
+resource "google_project_service" "cloud_scheduler" {
+  project = var.project_id
+  service = "cloudscheduler.googleapis.com"
+
+  disable_on_destroy = false
+}
+
 resource "google_cloud_scheduler_job" "youtube_data_summary" {
   project   = var.project_id
-  name      = "${var.youtube_data_function_function_name}-daily"
+  name      = var.job_name
   region    = var.location
-  schedule  = var.youtube_schedule
-  time_zone = var.youtube_schedule_timezone
+  schedule  = var.schedule
+  time_zone = var.timezone
 
   http_target {
     http_method = "POST"
-    uri         = google_cloudfunctions2_function.youtube_data_summary.service_config[0].uri
+    uri         = var.function_uri
 
     oidc_token {
-      service_account_email = google_service_account.function.email
+      service_account_email = var.service_account_email
     }
   }
 
-  depends_on = [
-    google_project_service.services,
-    google_cloudfunctions2_function.youtube_data_summary
-  ]
+  depends_on = [google_project_service.cloud_scheduler]
 }

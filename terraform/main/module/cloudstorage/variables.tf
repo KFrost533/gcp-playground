@@ -11,7 +11,6 @@ variable "project_name" {
 variable "location" {
   description = "Cloud Storage bucket location."
   type        = string
-  default     = "AUSTRALIA-SOUTHEAST1"
 }
 
 variable "storage_notification_function_source_dir" {
