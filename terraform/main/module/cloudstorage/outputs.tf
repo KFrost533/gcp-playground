@@ -17,3 +17,18 @@ output "function_source_object" {
   description = "Object containing the Cloud Function source archive."
   value       = google_storage_bucket_object.source.name
 }
+
+output "youtube_function_source_bucket" {
+  description = "Bucket containing the YouTube Cloud Function source archive."
+  value       = google_storage_bucket.yt_data_summary_source.name
+}
+
+output "youtube_function_source_object" {
+  description = "Object containing the YouTube Cloud Function source archive."
+  value       = google_storage_bucket_object.youtube_data.name
+}
+
+output "youtube_output_bucket" {
+  description = "Bucket containing exported YouTube search CSV files."
+  value       = google_storage_bucket.youtube_summary_storage.name
+}

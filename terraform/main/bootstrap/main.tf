@@ -58,10 +58,11 @@ locals {
 }
 
 module "cloudstorage" {
-  source              = "../module/cloudstorage"
-  project_id          = nonsensitive(local.gcp_account_id)
-  project_name        = nonsensitive(local.gcp_account_name)
-  function_source_dir = "${path.module}/../module/cloudfunction/src"
+  source                                   = "../module/cloudstorage"
+  project_id                               = nonsensitive(local.gcp_account_id)
+  project_name                             = nonsensitive(local.gcp_account_name)
+  storage_notification_function_source_dir = "${path.module}/../module/cloudfunction/src/storage_notification"
+  youtube_data_function_source_dir         = "${path.module}/../module/cloudfunction/src/ytdata_summary"
 }
 
 module "pubsub" {
@@ -86,6 +87,11 @@ module "cloudfunction" {
   bucket_name                    = module.cloudstorage.bucket_name
   function_source_bucket         = module.cloudstorage.function_source_bucket
   function_source_object         = module.cloudstorage.function_source_object
+  youtube_function_source_bucket = module.cloudstorage.youtube_function_source_bucket
+  youtube_function_source_object = module.cloudstorage.youtube_function_source_object
+  youtube_output_bucket          = module.cloudstorage.youtube_output_bucket
+  youtube_search_terms           = var.youtube_search_terms
+  youtube_result_limit           = var.youtube_result_limit
   eventarc_service_account_email = module.iam.service_account_email
 
   depends_on = [module.pubsub, module.iam, module.eventarc]

@@ -14,7 +14,12 @@ variable "location" {
   default     = "AUSTRALIA-SOUTHEAST1"
 }
 
-variable "function_source_dir" {
+variable "storage_notification_function_source_dir" {
   description = "Directory containing the Cloud Function source code."
+  type        = string
+}
+
+variable "youtube_data_function_source_dir" {
+  description = "Directory containing the YouTube data Cloud Function source code."
   type        = string
 }

@@ -1,5 +1,8 @@
 # GCP 検証案
 
+下記、GCP 検証案の概要です。
+それぞれterraformで実装していっています。
+
 
 # 検証案①: Cloud Storage → Cloud Run → Gmail
 
@@ -26,7 +29,8 @@
 
 <img src="./img/plan1/GCP-event-notification-SentMail.png"></img>
 
-# 検証案②: Cloud Function → Cloud Queue → Gmail
+
+# 検証案②: Cloud Function → Pub/Sub → Gmail
 
 検証中。
 
