@@ -1,5 +1,5 @@
 variable "project_id" {
-  description = "GCP project ID where the bucket is created."
+  description = "GCP project ID where the buckets are created."
   type        = string
 }
 
@@ -12,4 +12,9 @@ variable "location" {
   description = "Cloud Storage bucket location."
   type        = string
   default     = "AUSTRALIA-SOUTHEAST1"
+}
+
+variable "function_source_dir" {
+  description = "Directory containing the Cloud Function source code."
+  type        = string
 }

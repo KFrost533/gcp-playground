@@ -13,3 +13,8 @@ output "gcp_billing_account" {
   value       = data.google_secret_manager_secret_version.gcp_billing_account.secret_data
   sensitive   = true
 }
+
+output "gcp_secret_id_account" {
+  description = "GCP Account ID containing secrets data for the project"
+  value       = var.gcp_secret_project_id
+}
