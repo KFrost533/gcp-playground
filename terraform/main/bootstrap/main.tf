@@ -21,6 +21,11 @@ variable "gcp_region" {
   type        = string
 }
 
+variable "gcp_cloud_function_name" {
+  description = "Existing second-generation Cloud Function that receives storage upload events."
+  type        = string
+}
+
 provider "google" {
   project = var.gcp_secret_project_id
   region  = var.gcp_region
@@ -42,23 +47,23 @@ data "google_secret_manager_secret_version" "gcp_billing_account" {
   secret  = "gcp_billing_account"
 }
 
-resource "google_project" "this" {
-  project_id      = data.google_secret_manager_secret_version.gcp_account_id.secret_data
-  name            = data.google_secret_manager_secret_version.gcp_account_name.secret_data
-  billing_account = data.google_secret_manager_secret_version.gcp_billing_account.secret_data
-
-  labels = {
-    for_learning    = "true"
-    project         = "event-driven-notification"
-    managed_by      = "terraform"
-  }
-
-  lifecycle {
-  }
+locals {
+  gcp_account_name    = data.google_secret_manager_secret_version.gcp_account_name.secret_data
+  gcp_account_id      = data.google_secret_manager_secret_version.gcp_account_id.secret_data
+  gcp_billing_account = data.google_secret_manager_secret_version.gcp_billing_account.secret_data
 }
 
 module "cloudstorage" {
   source       = "../module/cloudstorage"
-  project_id   = google_project.this.project_id
-  project_name = google_project.this.name
+  project_id   = nonsensitive(local.gcp_account_id)
+  project_name = nonsensitive(local.gcp_account_name)
+}
+
+module "eventarc" {
+  source = "../module/eventarc"
+
+  project_id          = nonsensitive(local.gcp_account_id)
+  location            = var.gcp_region
+  bucket_name         = module.cloudstorage.bucket_name
+  cloud_function_name = var.gcp_cloud_function_name
 }
