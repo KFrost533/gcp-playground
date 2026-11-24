@@ -50,13 +50,22 @@ Secret Manager に保存したシークレットを利用する構成です。
 - CSV を `{project_id}-youtube-summary-storage` バケットの `youtube-search/YYYY/MM/DD/` 配下へ保存
 - BigQuery への取り込みとグラフ出力は次段階で追加予定
 
-初期検索語は `GCP Cloud Run` です。`terraform.tfvars` で変更できます。
+検索条件は Cloud Storage の `config/youtube-search.json` で管理します。
+初期内容は次のとおりです。
 
-```hcl
-youtube_search_terms = ["GCP Cloud Run", "Google Cloud"]
-youtube_result_limit = 10
-youtube_schedule     = "0 9 * * *"
+```json
+{
+  "search_terms": ["GCP Cloud Run"],
+  "result_limit": 10
+}
 ```
+
+GCP コンソールの Cloud Storage から JSON ファイルを編集すると、Terraform の再適用なしで
+次回の Cloud Scheduler 実行から新しい値が反映されます。設定ファイルは30日経過で削除されません。
+検索条件の優先順位は「Cloud Storage の設定JSON、手動実行のリクエスト本文、
+Cloud Function の環境変数」です。
+
+実行時刻は Cloud Scheduler モジュールの `schedule` と `timezone` で変更できます。
 
 YouTube Data API キーはコードや `tfvars` に保存せず、Terraform の `gcp_secret_project_id`
 で指定したプロジェクトの Secret Manager に `youtube_api_key` という名前で登録してください。

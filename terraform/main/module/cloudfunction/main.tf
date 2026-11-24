@@ -40,6 +40,12 @@ resource "google_storage_bucket_iam_member" "youtube_output_writer" {
   member = "serviceAccount:${google_service_account.function.email}"
 }
 
+resource "google_storage_bucket_iam_member" "youtube_output_reader" {
+  bucket = var.youtube_output_bucket
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.function.email}"
+}
+
 resource "google_project_iam_member" "scheduler_invoker" {
   project = var.project_id
   role    = "roles/run.invoker"
@@ -114,7 +120,7 @@ resource "google_cloudfunctions2_function" "youtube_data_summary" {
 
     source {
       storage_source {
-        bucket = var.youtube_function_source_bucket
+        bucket = var.function_source_bucket
         object = var.youtube_function_source_object
       }
     }
@@ -127,6 +133,7 @@ resource "google_cloudfunctions2_function" "youtube_data_summary" {
 
     environment_variables = {
       YOUTUBE_OUTPUT_BUCKET = var.youtube_output_bucket
+      YOUTUBE_CONFIG_OBJECT = var.youtube_config_object
       YOUTUBE_RESULT_LIMIT  = tostring(var.youtube_result_limit)
       YOUTUBE_SEARCH_TERMS  = join(",", var.youtube_search_terms)
     }
@@ -147,6 +154,7 @@ resource "google_cloudfunctions2_function" "youtube_data_summary" {
     google_project_service.services,
     google_project_iam_member.secret_accessor,
     google_storage_bucket_iam_member.youtube_output_writer,
+    google_storage_bucket_iam_member.youtube_output_reader,
     google_project_iam_member.scheduler_invoker,
     data.google_secret_manager_secret_version.youtube_api_key
   ]

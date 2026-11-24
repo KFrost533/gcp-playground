@@ -15,6 +15,12 @@ resource "google_cloud_scheduler_job" "youtube_data_summary" {
   http_target {
     http_method = "POST"
     uri         = var.function_uri
+    body = base64encode(jsonencode({
+      source = "cloud-storage"
+    }))
+    headers = {
+      "Content-Type" = "application/json"
+    }
 
     oidc_token {
       service_account_email = var.service_account_email

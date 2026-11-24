@@ -88,11 +88,9 @@ module "cloudfunction" {
   bucket_name                    = module.cloudstorage.bucket_name
   function_source_bucket         = module.cloudstorage.function_source_bucket
   function_source_object         = module.cloudstorage.function_source_object
-  youtube_function_source_bucket = module.cloudstorage.youtube_function_source_bucket
   youtube_function_source_object = module.cloudstorage.youtube_function_source_object
   youtube_output_bucket          = module.cloudstorage.youtube_output_bucket
-  youtube_search_terms           = var.youtube_search_terms
-  youtube_result_limit           = var.youtube_result_limit
+  youtube_config_object          = module.cloudstorage.youtube_config_object
   eventarc_service_account_email = module.iam.service_account_email
 
   depends_on = [module.pubsub, module.iam, module.eventarc]
@@ -106,8 +104,6 @@ module "cloudscheduler" {
   job_name              = "youtube-data-summary-daily"
   function_uri          = module.cloudfunction.youtube_function_uri
   service_account_email = module.cloudfunction.youtube_service_account_email
-  schedule              = var.youtube_schedule
-  timezone              = var.youtube_schedule_timezone
 }
 
 module "eventarc" {

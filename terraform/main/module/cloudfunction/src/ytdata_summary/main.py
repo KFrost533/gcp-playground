@@ -33,10 +33,34 @@ def _required_environment(name: str) -> str:
     return value
 
 
-def _search_terms() -> list[str]:
+def _load_search_config(storage_client: storage.Client, bucket_name: str) -> dict:
+    object_name = _required_environment("YOUTUBE_CONFIG_OBJECT")
+    config = json.loads(
+        storage_client.bucket(bucket_name).blob(object_name).download_as_bytes()
+    )
+    if not isinstance(config, dict):
+        raise ValueError("YouTube search configuration must be a JSON object")
+    return config
+
+
+def _search_terms(
+    config_terms: object = None, request_terms: object = None
+) -> list[str]:
+    raw_terms = (
+        config_terms
+        if config_terms is not None
+        else request_terms
+        if request_terms is not None
+        else _required_environment("YOUTUBE_SEARCH_TERMS").split(",")
+    )
+    if not isinstance(raw_terms, list) or not all(
+        isinstance(term, str) for term in raw_terms
+    ):
+        raise ValueError("search_terms must be an array of strings")
+
     terms = [
         term.strip()
-        for term in _required_environment("YOUTUBE_SEARCH_TERMS").split(",")
+        for term in raw_terms
         if term.strip()
     ]
     if not terms:
@@ -98,22 +122,33 @@ def _build_csv(rows: list[dict]) -> str:
 
 
 @functions_framework.http
-def youtube_data_summary(_request):
+def youtube_data_summary(request):
     api_key = _required_environment("YOUTUBE_API_KEY")
     bucket_name = _required_environment("YOUTUBE_OUTPUT_BUCKET")
-    result_limit = int(os.environ.get("YOUTUBE_RESULT_LIMIT", "10"))
+    request_body = request.get_json(silent=True) or {}
+    storage_client = storage.Client()
+    search_config = _load_search_config(storage_client, bucket_name)
+    result_limit = int(
+        search_config.get(
+            "result_limit",
+            request_body.get(
+                "result_limit", os.environ.get("YOUTUBE_RESULT_LIMIT", "10")
+            ),
+        )
+    )
     if not 1 <= result_limit <= 50:
         raise ValueError("YOUTUBE_RESULT_LIMIT must be between 1 and 50")
 
     now = datetime.now(timezone.utc)
     searched_at = now.isoformat()
     rows = []
-    for term in _search_terms():
+    for term in _search_terms(
+        search_config.get("search_terms"), request_body.get("search_terms")
+    ):
         items = _search_youtube(api_key, term, result_limit)
         rows.extend(_to_csv_rows(term, items, searched_at))
 
     object_name = f"youtube-search/{now:%Y/%m/%d}/youtube-results-{now:%Y%m%dT%H%M%SZ}.csv"
-    storage_client = storage.Client()
     storage_client.bucket(bucket_name).blob(object_name).upload_from_string(
         _build_csv(rows),
         content_type="text/csv; charset=utf-8",

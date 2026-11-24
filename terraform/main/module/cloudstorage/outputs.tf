@@ -18,11 +18,6 @@ output "function_source_object" {
   value       = google_storage_bucket_object.source.name
 }
 
-output "youtube_function_source_bucket" {
-  description = "Bucket containing the YouTube Cloud Function source archive."
-  value       = google_storage_bucket.yt_data_summary_source.name
-}
-
 output "youtube_function_source_object" {
   description = "Object containing the YouTube Cloud Function source archive."
   value       = google_storage_bucket_object.youtube_data.name
@@ -30,5 +25,10 @@ output "youtube_function_source_object" {
 
 output "youtube_output_bucket" {
   description = "Bucket containing exported YouTube search CSV files."
-  value       = google_storage_bucket.youtube_summary_storage.name
+  value       = google_storage_bucket.youtube_summary_data_storage.name
+}
+
+output "youtube_config_object" {
+  description = "Object containing the editable YouTube search configuration."
+  value       = google_storage_bucket_object.youtube_search_config.name
 }

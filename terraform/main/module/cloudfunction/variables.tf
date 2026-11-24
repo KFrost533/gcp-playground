@@ -62,11 +62,6 @@ variable "youtube_data_function_function_name" {
   default     = "youtube-data-summary"
 }
 
-variable "youtube_function_source_bucket" {
-  description = "Bucket containing the YouTube Cloud Function source archive."
-  type        = string
-}
-
 variable "youtube_function_source_object" {
   description = "Object containing the YouTube Cloud Function source archive."
   type        = string
@@ -74,6 +69,11 @@ variable "youtube_function_source_object" {
 
 variable "youtube_output_bucket" {
   description = "Bucket where YouTube search results are stored."
+  type        = string
+}
+
+variable "youtube_config_object" {
+  description = "Object containing the editable YouTube search configuration."
   type        = string
 }
 
