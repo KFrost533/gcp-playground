@@ -52,19 +52,34 @@ resource "google_project_iam_member" "scheduler_invoker" {
   member  = "serviceAccount:${google_service_account.function.email}"
 }
 
+locals {
+  storage_notification_events = {
+    uploaded = {
+      event_type    = "google.cloud.storage.object.v1.finalized"
+      function_name = "${var.storage_upload_notification_function_name}-uploaded"
+    }
+    deleted = {
+      event_type    = "google.cloud.storage.object.v1.deleted"
+      function_name = "${var.storage_upload_notification_function_name}-deleted"
+    }
+  }
+}
+
 resource "google_cloudfunctions2_function" "storage_notification" {
+  for_each = local.storage_notification_events
+
   project  = var.project_id
-  name     = var.storage_upload_notification_function_name
+  name     = each.value.function_name
   location = var.location
 
   build_config {
     runtime     = "python312"
-    entry_point = "storage_uploaded"
+    entry_point = "storage_changed"
 
     source {
       storage_source {
-        bucket = var.function_source_bucket
-        object = var.function_source_object
+        bucket = var.cloudfunction_source_bucket
+        object = var.storage_notification_function_source_object
       }
     }
   }
@@ -88,7 +103,7 @@ resource "google_cloudfunctions2_function" "storage_notification" {
 
   event_trigger {
     trigger_region        = var.location
-    event_type            = "google.cloud.storage.object.v1.finalized"
+    event_type            = each.value.event_type
     retry_policy          = "RETRY_POLICY_RETRY"
     service_account_email = var.eventarc_service_account_email
 
@@ -99,7 +114,8 @@ resource "google_cloudfunctions2_function" "storage_notification" {
   }
 
   labels = {
-    project = "storage-upload-notifier"
+    project    = "storage-change-notifier"
+    event_type = each.key
   }
 
   depends_on = [
@@ -109,9 +125,14 @@ resource "google_cloudfunctions2_function" "storage_notification" {
   ]
 }
 
+moved {
+  from = google_cloudfunctions2_function.storage_notification
+  to   = google_cloudfunctions2_function.storage_notification["uploaded"]
+}
+
 resource "google_cloudfunctions2_function" "youtube_data_summary" {
   project  = var.project_id
-  name     = var.youtube_data_function_function_name
+  name     = var.youtube_data_function_name
   location = var.location
 
   build_config {
@@ -120,8 +141,8 @@ resource "google_cloudfunctions2_function" "youtube_data_summary" {
 
     source {
       storage_source {
-        bucket = var.function_source_bucket
-        object = var.youtube_function_source_object
+        bucket = var.cloudfunction_source_bucket
+        object = var.youtube_data_summary_function_source_object
       }
     }
   }

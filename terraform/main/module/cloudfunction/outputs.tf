@@ -1,6 +1,9 @@
 output "function_name" {
-  description = "Name of the deployed Cloud Function."
-  value       = google_cloudfunctions2_function.storage_notification.name
+  description = "Names of the deployed Cloud Storage notification functions."
+  value = {
+    for event, function in google_cloudfunctions2_function.storage_notification :
+    event => function.name
+  }
 }
 
 output "youtube_function_name" {

@@ -81,17 +81,17 @@ module "iam" {
 module "cloudfunction" {
   source = "../module/cloudfunction"
 
-  project_id                     = nonsensitive(local.gcp_account_id)
-  secret_project_id              = var.gcp_secret_project_id
-  location                       = var.gcp_region
-  notification_email             = nonsensitive(data.google_secret_manager_secret_version.mail_address.secret_data)
-  bucket_name                    = module.cloudstorage.bucket_name
-  function_source_bucket         = module.cloudstorage.function_source_bucket
-  function_source_object         = module.cloudstorage.function_source_object
-  youtube_function_source_object = module.cloudstorage.youtube_function_source_object
-  youtube_output_bucket          = module.cloudstorage.youtube_output_bucket
-  youtube_config_object          = module.cloudstorage.youtube_config_object
-  eventarc_service_account_email = module.iam.service_account_email
+  project_id                                  = nonsensitive(local.gcp_account_id)
+  secret_project_id                           = var.gcp_secret_project_id
+  location                                    = var.gcp_region
+  notification_email                          = nonsensitive(data.google_secret_manager_secret_version.mail_address.secret_data)
+  bucket_name                                 = module.cloudstorage.bucket_name
+  cloudfunction_source_bucket                 = module.cloudstorage.function_source_bucket
+  storage_notification_function_source_object = module.cloudstorage.function_source_object
+  youtube_data_summary_function_source_object = module.cloudstorage.youtube_function_source_object
+  youtube_output_bucket                       = module.cloudstorage.youtube_output_bucket
+  youtube_config_object                       = module.cloudstorage.youtube_config_object
+  eventarc_service_account_email              = module.iam.service_account_email
 
   depends_on = [module.pubsub, module.iam, module.eventarc]
 }

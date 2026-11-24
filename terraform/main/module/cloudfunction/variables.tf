@@ -29,13 +29,13 @@ variable "bucket_name" {
   type        = string
 }
 
-variable "function_source_bucket" {
+variable "cloudfunction_source_bucket" {
   description = "Bucket containing the Cloud Function source archive."
   type        = string
 }
 
-variable "function_source_object" {
-  description = "Object containing the Cloud Function source archive."
+variable "storage_notification_function_source_object" {
+  description = "Object containing the storage notification Cloud Function source archive."
   type        = string
 }
 
@@ -56,14 +56,14 @@ variable "service_account_id" {
   default     = "storage-upload-notifier"
 }
 
-variable "youtube_data_function_function_name" {
+variable "youtube_data_function_name" {
   description = "YouTube data Cloud Function name."
   type        = string
   default     = "youtube-data-summary"
 }
 
-variable "youtube_function_source_object" {
-  description = "Object containing the YouTube Cloud Function source archive."
+variable "youtube_data_summary_function_source_object" {
+  description = "Object containing the YouTube data summary Cloud Function source archive."
   type        = string
 }
 

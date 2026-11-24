@@ -45,7 +45,7 @@ resource "google_storage_bucket" "source" {
 data "archive_file" "storage_notification_function_source" {
   type        = "zip"
   source_dir  = var.storage_notification_function_source_dir
-  output_path = "${path.module}/storage-notification-function.zip"
+  output_path = "cloudfunction/src/zip/storage-notification-function.zip"
 }
 
 resource "google_storage_bucket_object" "source" {
@@ -58,7 +58,7 @@ resource "google_storage_bucket_object" "source" {
 data "archive_file" "youtube_data_summary_function_source" {
   type        = "zip"
   source_dir  = var.youtube_data_function_source_dir
-  output_path = "${path.module}/yt-data-summary-function.zip"
+  output_path = "../cloudfunction/src/zip/youtube-data-summary-function.zip"
 }
 
 resource "google_storage_bucket_object" "youtube_data" {
